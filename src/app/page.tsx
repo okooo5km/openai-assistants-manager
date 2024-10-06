@@ -196,7 +196,11 @@ export default function Home() {
     setError(null);
     try {
       const openai = new OpenAI({ apiKey, dangerouslyAllowBrowser: true });
-      const response = await openai.beta.assistants.create(newAssistant);
+      const response = await openai.beta.assistants.create({
+        name: newAssistant.name || "",
+        instructions: newAssistant.instructions || "",
+        model: newAssistant.model || "gpt-4o-mini",
+      });
       setAssistants([...assistants, response as unknown as Assistant]);
       setSelectedAssistantId(response.id);
     } catch (err) {
