@@ -1,0 +1,21 @@
+{
+  "name": "OpenAI Assistants 管理器",
+  "short_name": "Assistants 管理器",
+  "description": "管理您的 OpenAI Assistants",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#4F46E5",
+  "icons": [
+    {
+      "src": "/icon-192x192.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "/icon-512x512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml"
+    }
+  ]
+}

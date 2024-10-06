@@ -1,0 +1,24 @@
+/* 您可以在这里添加任何全局样式 */
+
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  background: linear-gradient(45deg, #1a237e, #4a148c, #0d47a1, #1565c0);
+  background-size: 400% 400%;
+  animation: gradient 15s ease infinite;
+}
+
+@keyframes gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* 您可以在这里添加其他全局样式 */
