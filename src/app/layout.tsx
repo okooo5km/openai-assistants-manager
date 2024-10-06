@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
-import { Theme } from "@radix-ui/themes";
 import "@radix-ui/themes/styles.css";
+import { ThemeProvider } from "../components/ThemeProvider";
 
 export const metadata: Metadata = {
   title: "OpenAI Assistants 管理器",
@@ -30,15 +30,11 @@ export default function RootLayout({
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
       </head>
       <body>
-        <Theme
-          appearance="light"
-          accentColor="indigo"
-          grayColor="slate"
-          radius="medium"
-          scaling="100%"
-        >
-          {children}
-        </Theme>
+        <ThemeProvider>
+          <div className="flex flex-col min-h-screen">
+            <main className="flex-grow">{children}</main>
+          </div>
+        </ThemeProvider>
       </body>
     </html>
   );

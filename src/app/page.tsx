@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { ApiKeyModal } from "../components/ApiKeyModal";
-import { ApiKeyManager } from "../components/ApiKeyManager";
 import { InstructionModal } from "../components/InstructionModal";
 import OpenAI from "openai";
 import {
@@ -18,9 +17,19 @@ import {
   IconButton,
   AlertDialog,
   Flex as AlertFlex,
+  DropdownMenu,
 } from "@radix-ui/themes";
-import { EnterFullScreenIcon } from "@radix-ui/react-icons";
+import {
+  EnterFullScreenIcon,
+  SunIcon,
+  MoonIcon,
+  DesktopIcon,
+  GitHubLogoIcon,
+} from "@radix-ui/react-icons";
 import { Spinner } from "../components/Spinner";
+import { ApiKeyManager } from "../components/ApiKeyManager";
+import Image from "next/image";
+import { useTheme } from "../components/ThemeProvider";
 
 interface Assistant {
   id: string;
@@ -81,6 +90,8 @@ export default function Home() {
 
   const [tempTemperature, setTempTemperature] = useState<number | null>(null);
   const [tempTopP, setTempTopP] = useState<number | null>(null);
+
+  const { theme, setTheme, actualTheme } = useTheme();
 
   useEffect(() => {
     const storedApiKey = localStorage.getItem("openaiApiKey");
@@ -193,6 +204,17 @@ export default function Home() {
     setTempTopP(null);
   };
 
+  const getThemeIcon = () => {
+    switch (theme) {
+      case "light":
+        return <SunIcon />;
+      case "dark":
+        return <MoonIcon />;
+      case "system":
+        return <DesktopIcon />;
+    }
+  };
+
   if (!apiKey || apiKey.trim() === "") {
     return (
       <ApiKeyModal
@@ -210,7 +232,7 @@ export default function Home() {
         justify="center"
         style={{
           minHeight: "100vh",
-          background: "transparent", // 确保Flex容器背景是透明的
+          background: "transparent",
         }}
         gap="4"
       >
@@ -219,15 +241,63 @@ export default function Home() {
           style={{
             width: "100%",
             maxWidth: "48rem",
-            background: "rgba(255, 255, 255, 0.1)", // 半透明白色背景
-            backdropFilter: "blur(10px)", // 背景模糊效果
-            borderRadius: "12px", // 圆角
+            background: "rgba(255, 255, 255, 0.1)",
+            backdropFilter: "blur(10px)",
+            borderRadius: "12px",
           }}
         >
           <Flex justify="between" align="center" mb="4">
-            <Heading size="5">OpenAI Assistants 管理器</Heading>
-            <ApiKeyManager currentApiKey={apiKey} onSave={handleSaveApiKey} />
+            <Flex align="center" gap="3">
+              <Image src="/favicon.svg" alt="Logo" width={32} height={32} />
+              <Heading size="5">OpenAI Assistants 管理器</Heading>
+            </Flex>
+            <Flex align="center" gap="4">
+              <DropdownMenu.Root>
+                <DropdownMenu.Trigger>
+                  <IconButton variant="ghost" aria-label="切换主题">
+                    {getThemeIcon()}
+                  </IconButton>
+                </DropdownMenu.Trigger>
+                <DropdownMenu.Content aria-describedby="theme-menu-description">
+                  <DropdownMenu.Item onSelect={() => setTheme("light")}>
+                    <Flex align="center" gap="2">
+                      <SunIcon />
+                      浅色
+                    </Flex>
+                  </DropdownMenu.Item>
+                  <DropdownMenu.Item onSelect={() => setTheme("dark")}>
+                    <Flex align="center" gap="2">
+                      <MoonIcon />
+                      深色
+                    </Flex>
+                  </DropdownMenu.Item>
+                  <DropdownMenu.Item onSelect={() => setTheme("system")}>
+                    <Flex align="center" gap="2">
+                      <DesktopIcon />
+                      系统
+                    </Flex>
+                  </DropdownMenu.Item>
+                </DropdownMenu.Content>
+              </DropdownMenu.Root>
+              <IconButton
+                variant="ghost"
+                aria-label="GitHub 仓库"
+                onClick={() =>
+                  window.open(
+                    "https://github.com/okooo5km/openai-assistants-manager",
+                    "_blank"
+                  )
+                }
+              >
+                <GitHubLogoIcon />
+              </IconButton>
+              <ApiKeyManager
+                currentApiKey={apiKey || ""}
+                onSave={handleSaveApiKey}
+              />
+            </Flex>
           </Flex>
+
           <Tabs.Root
             value={selectedAssistantId || ""}
             onValueChange={setSelectedAssistantId}
