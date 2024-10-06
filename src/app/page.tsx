@@ -30,7 +30,7 @@ import {
   PlusIcon,
 } from "@radix-ui/react-icons";
 import { Spinner } from "../components/Spinner";
-import { ApiKeyManager } from "../components/ApiKeyManager";
+import { Settings } from "../components/Settings";
 import Image from "next/image";
 import { useTheme } from "../components/ThemeProvider";
 import { CreateAssistantModal } from "../components/CreateAssistantModal";
@@ -66,6 +66,8 @@ export default function Home() {
     null
   );
 
+  const [showDeleteButton, setShowDeleteButton] = useState(false);
+
   useEffect(() => {
     const storedApiKey = localStorage.getItem("openaiApiKey");
     if (storedApiKey && storedApiKey.trim() !== "") {
@@ -73,6 +75,10 @@ export default function Home() {
       fetchAssistants(storedApiKey);
     } else {
       setIsModalOpen(true);
+    }
+    const savedShowDeleteButton = localStorage.getItem("showDeleteButton");
+    if (savedShowDeleteButton !== null) {
+      setShowDeleteButton(JSON.parse(savedShowDeleteButton));
     }
   }, []);
 
@@ -100,7 +106,9 @@ export default function Home() {
         setSelectedAssistantId(response.data[0].id);
       }
     } catch (err) {
-      setError("Failed to fetch assistants list. Please check if your API key is correct.");
+      setError(
+        "Failed to fetch assistants list. Please check if your API key is correct."
+      );
       console.error("Error fetching assistants:", err);
     } finally {
       setLoading(false);
@@ -243,6 +251,10 @@ export default function Home() {
     }
   };
 
+  const handleToggleDeleteButton = (show: boolean) => {
+    setShowDeleteButton(show);
+  };
+
   if (!apiKey || apiKey.trim() === "") {
     return (
       <ApiKeyModal
@@ -297,7 +309,11 @@ export default function Home() {
               </Button>
               <DropdownMenu.Root>
                 <DropdownMenu.Trigger>
-                  <IconButton variant="classic" aria-label="Toggle theme">
+                  <IconButton
+                    variant="classic"
+                    aria-label="Toggle theme"
+                    color="gray"
+                  >
                     {getThemeIcon()}
                   </IconButton>
                 </DropdownMenu.Trigger>
@@ -325,6 +341,7 @@ export default function Home() {
               <IconButton
                 variant="classic"
                 aria-label="GitHub Repository"
+                color="gray"
                 onClick={() =>
                   window.open(
                     "https://github.com/okooo5km/openai-assistants-manager",
@@ -334,9 +351,10 @@ export default function Home() {
               >
                 <GitHubLogoIcon />
               </IconButton>
-              <ApiKeyManager
+              <Settings
                 currentApiKey={apiKey || ""}
                 onSave={handleSaveApiKey}
+                onToggleDeleteButton={handleToggleDeleteButton}
               />
             </Flex>
           </Flex>
@@ -365,13 +383,15 @@ export default function Home() {
                   >
                     <Flex justify="between" align="center" mb="2">
                       <Heading size="3">{assistant.name}</Heading>
-                      <IconButton
-                        variant="classic"
-                        color="red"
-                        onClick={() => setAssistantToDelete(assistant.id)}
-                      >
-                        <TrashIcon />
-                      </IconButton>
+                      {showDeleteButton && (
+                        <IconButton
+                          variant="classic"
+                          color="red"
+                          onClick={() => setAssistantToDelete(assistant.id)}
+                        >
+                          <TrashIcon />
+                        </IconButton>
+                      )}
                     </Flex>
                     <Flex direction="column" gap="4">
                       <Flex direction="column" gap="1">
@@ -586,7 +606,8 @@ export default function Home() {
         <AlertDialog.Content>
           <AlertDialog.Title>Confirm Deletion</AlertDialog.Title>
           <AlertDialog.Description>
-            Are you sure you want to delete this Assistant? This action cannot be undone.
+            Are you sure you want to delete this Assistant? This action cannot
+            be undone.
           </AlertDialog.Description>
           <Flex justify="end" gap="3" mt="4">
             <AlertDialog.Cancel>

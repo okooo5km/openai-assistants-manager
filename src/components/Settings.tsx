@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Dialog,
   Button,
@@ -6,24 +6,32 @@ import {
   IconButton,
   Flex,
   Text,
+  Switch,
 } from "@radix-ui/themes";
-import {
-  GearIcon,
-  EyeOpenIcon,
-  EyeNoneIcon,
-  ClipboardIcon,
-  Cross2Icon,
-} from "@radix-ui/react-icons";
+import { GearIcon, EyeOpenIcon, EyeNoneIcon } from "@radix-ui/react-icons";
 
-interface ApiKeyManagerProps {
+interface SettingsProps {
   currentApiKey: string;
   onSave: (newApiKey: string) => void;
+  onToggleDeleteButton: (show: boolean) => void;
 }
 
-export function ApiKeyManager({ currentApiKey, onSave }: ApiKeyManagerProps) {
+export function Settings({
+  currentApiKey,
+  onSave,
+  onToggleDeleteButton,
+}: SettingsProps) {
   const [newApiKey, setNewApiKey] = useState(currentApiKey);
   const [showApiKey, setShowApiKey] = useState(false);
-  const [isCopied, setIsCopied] = useState(false);
+  const [showDeleteButton, setShowDeleteButton] = useState(false);
+
+  useEffect(() => {
+    // Load the showDeleteButton state from localStorage
+    const savedShowDeleteButton = localStorage.getItem("showDeleteButton");
+    if (savedShowDeleteButton !== null) {
+      setShowDeleteButton(JSON.parse(savedShowDeleteButton));
+    }
+  }, []);
 
   const handleSave = () => {
     if (newApiKey) {
@@ -31,27 +39,23 @@ export function ApiKeyManager({ currentApiKey, onSave }: ApiKeyManagerProps) {
     }
   };
 
-  const handleCopy = () => {
-    navigator.clipboard.writeText(newApiKey);
-    setIsCopied(true);
-    setTimeout(() => setIsCopied(false), 2000);
-  };
-
-  const handleClear = () => {
-    setNewApiKey("");
+  const handleToggleDeleteButton = (checked: boolean) => {
+    setShowDeleteButton(checked);
+    localStorage.setItem("showDeleteButton", JSON.stringify(checked));
+    onToggleDeleteButton(checked);
   };
 
   return (
     <Dialog.Root>
       <Dialog.Trigger>
-        <IconButton variant="classic" aria-label="Settings">
+        <IconButton variant="classic" aria-label="Settings" color="orange">
           <GearIcon />
         </IconButton>
       </Dialog.Trigger>
       <Dialog.Content style={{ maxWidth: "400px" }}>
         <Flex direction="column" gap="3">
-          <Dialog.Title>API Key Settings</Dialog.Title>
-          <Text size="2">Current API Key:</Text>
+          <Dialog.Title>Settings</Dialog.Title>
+          <Text size="2">API Key:</Text>
           <Flex>
             <TextField.Root
               variant="classic"
@@ -73,6 +77,14 @@ export function ApiKeyManager({ currentApiKey, onSave }: ApiKeyManagerProps) {
                 </IconButton>
               </TextField.Slot>
             </TextField.Root>
+          </Flex>
+          <Flex align="center" gap="2">
+            <Switch
+              checked={showDeleteButton}
+              onCheckedChange={handleToggleDeleteButton}
+              variant="classic"
+            />
+            <Text size="2">Show delete button for Assistants</Text>
           </Flex>
           <Flex justify="end" gap="2">
             <Dialog.Close>
