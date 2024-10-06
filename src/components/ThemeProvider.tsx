@@ -59,7 +59,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
         appearance={actualTheme}
         accentColor="indigo"
         grayColor="slate"
-        radius="medium"
+        radius="full"
         scaling="100%"
       >
         {children}

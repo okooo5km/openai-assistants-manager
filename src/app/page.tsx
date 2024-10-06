@@ -18,6 +18,7 @@ import {
   AlertDialog,
   Flex as AlertFlex,
   DropdownMenu,
+  Button,
 } from "@radix-ui/themes";
 import {
   EnterFullScreenIcon,
@@ -25,50 +26,16 @@ import {
   MoonIcon,
   DesktopIcon,
   GitHubLogoIcon,
+  TrashIcon,
+  PlusIcon,
 } from "@radix-ui/react-icons";
 import { Spinner } from "../components/Spinner";
 import { ApiKeyManager } from "../components/ApiKeyManager";
 import Image from "next/image";
 import { useTheme } from "../components/ThemeProvider";
-
-interface Assistant {
-  id: string;
-  name: string;
-  description?: string;
-  model: string;
-  instructions: string;
-  tools: {
-    type: "retrieval" | "code_interpreter" | "function";
-    function?: {
-      name: string;
-      description: string;
-      parameters: any;
-    };
-  }[];
-  file_ids: string[];
-  response_format: { type: string };
-  temperature?: number;
-  top_p?: number;
-}
-
-const MODELS = [
-  "gpt-4o-mini",
-  "gpt-4o",
-  "gpt-4-turbo",
-  "gpt-4",
-  "gpt-3.5-turbo",
-  "gpt-4o-mini-2024-07-18",
-  "gpt-4o-2024-08-06",
-  "gpt-4o-2024-05-13",
-  "gpt-4-turbo-preview",
-  "gpt-4-turbo-2024-04-09",
-  "gpt-4-1106-preview",
-  "gpt-4-0613",
-  "gpt-4-0125-preview",
-  "gpt-3.5-turbo-16k",
-  "gpt-3.5-turbo-1106",
-  "gpt-3.5-turbo-0125",
-];
+import { CreateAssistantModal } from "../components/CreateAssistantModal";
+import { Assistant } from "../types/Assistant";
+import { MODELS } from "../constants/models";
 
 export default function Home() {
   const [apiKey, setApiKey] = useState<string | null>(null);
@@ -92,6 +59,12 @@ export default function Home() {
   const [tempTopP, setTempTopP] = useState<number | null>(null);
 
   const { theme, setTheme, actualTheme } = useTheme();
+
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+
+  const [assistantToDelete, setAssistantToDelete] = useState<string | null>(
+    null
+  );
 
   useEffect(() => {
     const storedApiKey = localStorage.getItem("openaiApiKey");
@@ -215,6 +188,57 @@ export default function Home() {
     }
   };
 
+  const createAssistant = async (newAssistant: Partial<Assistant>) => {
+    if (!apiKey) return;
+    setLoading(true);
+    setIsProcessing(true);
+    setProcessingMessage(`正在创建新的 Assistant "${newAssistant.name}"...`);
+    setError(null);
+    try {
+      const openai = new OpenAI({ apiKey, dangerouslyAllowBrowser: true });
+      const response = await openai.beta.assistants.create(newAssistant);
+      setAssistants([...assistants, response as unknown as Assistant]);
+      setSelectedAssistantId(response.id);
+    } catch (err) {
+      setError("创建新助手失败，请稍后重试。");
+      console.error("Error creating assistant:", err);
+    } finally {
+      setLoading(false);
+      setIsProcessing(false);
+      setProcessingMessage("");
+    }
+  };
+
+  const deleteAssistant = async (assistantId: string) => {
+    if (!apiKey) return;
+    setLoading(true);
+    setIsProcessing(true);
+    setProcessingMessage(`正在删除 Assistant...`);
+    setError(null);
+    try {
+      const openai = new OpenAI({ apiKey, dangerouslyAllowBrowser: true });
+      await openai.beta.assistants.del(assistantId);
+      setAssistants(assistants.filter((a) => a.id !== assistantId));
+      if (selectedAssistantId === assistantId) {
+        setSelectedAssistantId(assistants[0]?.id || null);
+      }
+    } catch (err) {
+      setError("删除助手失败，请稍后重试。");
+      console.error("Error deleting assistant:", err);
+    } finally {
+      setLoading(false);
+      setIsProcessing(false);
+      setProcessingMessage("");
+    }
+  };
+
+  const handleDeleteConfirm = () => {
+    if (assistantToDelete) {
+      deleteAssistant(assistantToDelete);
+      setAssistantToDelete(null);
+    }
+  };
+
   if (!apiKey || apiKey.trim() === "") {
     return (
       <ApiKeyModal
@@ -248,13 +272,28 @@ export default function Home() {
         >
           <Flex justify="between" align="center" mb="4">
             <Flex align="center" gap="3">
-              <Image src="/favicon.svg" alt="Logo" width={32} height={32} />
+              <Image
+                src="/icon-512x512.svg"
+                alt="Logo"
+                width={32}
+                height={32}
+                style={{
+                  borderRadius: "50%",
+                  boxShadow: "0 0 10px 0 rgba(0, 0, 0, 0.1)",
+                }}
+              />
               <Heading size="5">OpenAI Assistants 管理器</Heading>
             </Flex>
             <Flex align="center" gap="4">
+              <Button
+                onClick={() => setIsCreateModalOpen(true)}
+                variant="classic"
+              >
+                创建
+              </Button>
               <DropdownMenu.Root>
                 <DropdownMenu.Trigger>
-                  <IconButton variant="ghost" aria-label="切换主题">
+                  <IconButton variant="classic" aria-label="切换主题">
                     {getThemeIcon()}
                   </IconButton>
                 </DropdownMenu.Trigger>
@@ -280,7 +319,7 @@ export default function Home() {
                 </DropdownMenu.Content>
               </DropdownMenu.Root>
               <IconButton
-                variant="ghost"
+                variant="classic"
                 aria-label="GitHub 仓库"
                 onClick={() =>
                   window.open(
@@ -298,172 +337,201 @@ export default function Home() {
             </Flex>
           </Flex>
 
-          <Tabs.Root
-            value={selectedAssistantId || ""}
-            onValueChange={setSelectedAssistantId}
-          >
-            <Tabs.List>
-              {assistants.map((assistant) => (
-                <Tabs.Trigger key={assistant.id} value={assistant.id}>
-                  {assistant.name}
-                </Tabs.Trigger>
-              ))}
-            </Tabs.List>
-            {assistants.map((assistant) => (
-              <Tabs.Content key={assistant.id} value={assistant.id}>
-                <Box
-                  mt="4"
-                  p="4"
-                  style={{
-                    border: "1px solid var(--gray-6)",
-                    borderRadius: "var(--radius-3)",
-                  }}
-                >
-                  <Heading size="3" mb="2">
+          {assistants.length > 0 ? (
+            <Tabs.Root
+              value={selectedAssistantId || ""}
+              onValueChange={setSelectedAssistantId}
+            >
+              <Tabs.List>
+                {assistants.map((assistant) => (
+                  <Tabs.Trigger key={assistant.id} value={assistant.id}>
                     {assistant.name}
-                  </Heading>
-                  <Flex direction="column" gap="4">
-                    <Flex direction="column" gap="1">
-                      <Text size="2" weight="bold">
-                        名称
-                      </Text>
-                      <TextField.Root
+                  </Tabs.Trigger>
+                ))}
+              </Tabs.List>
+              {assistants.map((assistant) => (
+                <Tabs.Content key={assistant.id} value={assistant.id}>
+                  <Box
+                    mt="4"
+                    p="4"
+                    style={{
+                      border: "1px solid var(--gray-6)",
+                      borderRadius: "var(--radius-3)",
+                    }}
+                  >
+                    <Flex justify="between" align="center" mb="2">
+                      <Heading size="3">{assistant.name}</Heading>
+                      <IconButton
                         variant="classic"
-                        value={assistant.name}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                          updateAssistant({
-                            ...assistant,
-                            name: e.target.value,
-                          })
-                        }
-                        placeholder="Assistant 名称"
-                      />
+                        color="red"
+                        onClick={() => setAssistantToDelete(assistant.id)}
+                      >
+                        <TrashIcon />
+                      </IconButton>
                     </Flex>
-
-                    <Flex direction="column" gap="1">
-                      <Text size="2" weight="bold">
-                        系统指令
-                      </Text>
-                      <Box style={{ position: "relative" }}>
-                        <TextArea
+                    <Flex direction="column" gap="4">
+                      <Flex direction="column" gap="1">
+                        <Text size="2" weight="bold">
+                          名称
+                        </Text>
+                        <TextField.Root
                           variant="classic"
-                          value={assistant.instructions}
-                          onChange={(e) =>
+                          value={assistant.name}
+                          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                             updateAssistant({
                               ...assistant,
-                              instructions: e.target.value,
+                              name: e.target.value,
                             })
                           }
-                          placeholder="系统指令"
+                          placeholder="Assistant 名称"
                         />
-                        <IconButton
-                          variant="ghost"
-                          onClick={() => {
-                            setCurrentInstructions(assistant.instructions);
-                            setCurrentAssistantId(assistant.id);
-                            setIsInstructionModalOpen(true);
-                          }}
-                          style={{
-                            position: "absolute",
-                            bottom: "8px",
-                            right: "12px",
-                            zIndex: 1,
-                          }}
+                      </Flex>
+
+                      <Flex direction="column" gap="1">
+                        <Text size="2" weight="bold">
+                          系统指令
+                        </Text>
+                        <Box style={{ position: "relative" }}>
+                          <TextArea
+                            variant="classic"
+                            value={assistant.instructions}
+                            onChange={(e) =>
+                              updateAssistant({
+                                ...assistant,
+                                instructions: e.target.value,
+                              })
+                            }
+                            placeholder="系统指令"
+                          />
+                          <IconButton
+                            variant="ghost"
+                            onClick={() => {
+                              setCurrentInstructions(assistant.instructions);
+                              setCurrentAssistantId(assistant.id);
+                              setIsInstructionModalOpen(true);
+                            }}
+                            style={{
+                              position: "absolute",
+                              bottom: "8px",
+                              right: "12px",
+                              zIndex: 1,
+                            }}
+                          >
+                            <EnterFullScreenIcon />
+                          </IconButton>
+                        </Box>
+                      </Flex>
+
+                      <Flex direction="column" gap="1">
+                        <Text size="2" weight="bold">
+                          模型
+                        </Text>
+                        <Select.Root
+                          value={assistant.model}
+                          onValueChange={(value) =>
+                            updateAssistant({ ...assistant, model: value })
+                          }
                         >
-                          <EnterFullScreenIcon />
-                        </IconButton>
-                      </Box>
-                    </Flex>
-
-                    <Flex direction="column" gap="1">
-                      <Text size="2" weight="bold">
-                        模型
-                      </Text>
-                      <Select.Root
-                        value={assistant.model}
-                        onValueChange={(value) =>
-                          updateAssistant({ ...assistant, model: value })
-                        }
-                      >
-                        <Select.Trigger variant="classic" />
-                        <Select.Content>
-                          {MODELS.map((model) => (
-                            <Select.Item key={model} value={model}>
-                              {model}
-                            </Select.Item>
-                          ))}
-                        </Select.Content>
-                      </Select.Root>
-                    </Flex>
-
-                    <Flex direction="column" gap="1">
-                      <Text size="2" weight="bold">
-                        响应格式
-                      </Text>
-                      <Select.Root
-                        value={assistant.response_format.type}
-                        onValueChange={(value) =>
-                          updateAssistant({
-                            ...assistant,
-                            response_format: { type: value },
-                          })
-                        }
-                      >
-                        <Select.Trigger variant="classic" />
-                        <Select.Content>
-                          {["text", "json_object", "json_schema"].map(
-                            (format) => (
-                              <Select.Item key={format} value={format}>
-                                {format}
+                          <Select.Trigger variant="classic" />
+                          <Select.Content>
+                            {MODELS.map((model) => (
+                              <Select.Item key={model} value={model}>
+                                {model}
                               </Select.Item>
-                            )
-                          )}
-                        </Select.Content>
-                      </Select.Root>
-                    </Flex>
+                            ))}
+                          </Select.Content>
+                        </Select.Root>
+                      </Flex>
 
-                    <Flex direction="column" gap="1">
-                      <Text size="2" weight="bold">
-                        Temperature:{" "}
-                        {tempTemperature !== null
-                          ? tempTemperature
-                          : assistant.temperature || 0}
-                      </Text>
-                      <Slider
-                        variant="classic"
-                        value={[
-                          tempTemperature !== null
+                      <Flex direction="column" gap="1">
+                        <Text size="2" weight="bold">
+                          响应格式
+                        </Text>
+                        <Select.Root
+                          value={assistant.response_format.type}
+                          onValueChange={(value) =>
+                            updateAssistant({
+                              ...assistant,
+                              response_format: { type: value },
+                            })
+                          }
+                        >
+                          <Select.Trigger variant="classic" />
+                          <Select.Content>
+                            {["text", "json_object", "json_schema"].map(
+                              (format) => (
+                                <Select.Item key={format} value={format}>
+                                  {format}
+                                </Select.Item>
+                              )
+                            )}
+                          </Select.Content>
+                        </Select.Root>
+                      </Flex>
+
+                      <Flex direction="column" gap="1">
+                        <Text size="2" weight="bold">
+                          Temperature:{" "}
+                          {tempTemperature !== null
                             ? tempTemperature
-                            : assistant.temperature || 0,
-                        ]}
-                        max={2}
-                        step={0.1}
-                        onValueChange={handleTemperatureChange}
-                        onValueCommit={() => handleTemperatureCommit(assistant)}
-                      />
-                    </Flex>
+                            : assistant.temperature || 0}
+                        </Text>
+                        <Slider
+                          variant="classic"
+                          value={[
+                            tempTemperature !== null
+                              ? tempTemperature
+                              : assistant.temperature || 0,
+                          ]}
+                          max={2}
+                          step={0.1}
+                          onValueChange={handleTemperatureChange}
+                          onValueCommit={() =>
+                            handleTemperatureCommit(assistant)
+                          }
+                        />
+                      </Flex>
 
-                    <Flex direction="column" gap="1">
-                      <Text size="2" weight="bold">
-                        Top P:{" "}
-                        {tempTopP !== null ? tempTopP : assistant.top_p || 0}
-                      </Text>
-                      <Slider
-                        variant="classic"
-                        value={[
-                          tempTopP !== null ? tempTopP : assistant.top_p || 0,
-                        ]}
-                        max={1}
-                        step={0.1}
-                        onValueChange={handleTopPChange}
-                        onValueCommit={() => handleTopPCommit(assistant)}
-                      />
+                      <Flex direction="column" gap="1">
+                        <Text size="2" weight="bold">
+                          Top P:{" "}
+                          {tempTopP !== null ? tempTopP : assistant.top_p || 0}
+                        </Text>
+                        <Slider
+                          variant="classic"
+                          value={[
+                            tempTopP !== null ? tempTopP : assistant.top_p || 0,
+                          ]}
+                          max={1}
+                          step={0.1}
+                          onValueChange={handleTopPChange}
+                          onValueCommit={() => handleTopPCommit(assistant)}
+                        />
+                      </Flex>
                     </Flex>
-                  </Flex>
-                </Box>
-              </Tabs.Content>
-            ))}
-          </Tabs.Root>
+                  </Box>
+                </Tabs.Content>
+              ))}
+            </Tabs.Root>
+          ) : (
+            <Flex
+              direction="column"
+              align="center"
+              justify="center"
+              style={{ minHeight: "200px" }}
+            >
+              <Text size="3" mb="4">
+                您还没有创建任何 Assistant
+              </Text>
+              <Button
+                onClick={() => setIsCreateModalOpen(true)}
+                variant="classic"
+              >
+                <PlusIcon />
+                创建新 Assistant
+              </Button>
+            </Flex>
+          )}
           {loading && <Text align="center">加载中...</Text>}
           {error && (
             <Text color="red" align="center">
@@ -500,6 +568,38 @@ export default function Home() {
               请稍候，我们正在处理您的请求...
             </AlertDialog.Description>
           </AlertFlex>
+        </AlertDialog.Content>
+      </AlertDialog.Root>
+      <CreateAssistantModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        onCreate={createAssistant}
+      />
+      <AlertDialog.Root
+        open={!!assistantToDelete}
+        onOpenChange={() => setAssistantToDelete(null)}
+      >
+        <AlertDialog.Content>
+          <AlertDialog.Title>确认删除</AlertDialog.Title>
+          <AlertDialog.Description>
+            您确定要删除这个 Assistant 吗？此操作无法撤消。
+          </AlertDialog.Description>
+          <Flex justify="end" gap="3" mt="4">
+            <AlertDialog.Cancel>
+              <Button variant="classic" color="gray">
+                取消
+              </Button>
+            </AlertDialog.Cancel>
+            <AlertDialog.Action>
+              <Button
+                variant="classic"
+                color="red"
+                onClick={handleDeleteConfirm}
+              >
+                删除
+              </Button>
+            </AlertDialog.Action>
+          </Flex>
         </AlertDialog.Content>
       </AlertDialog.Root>
     </>

@@ -44,7 +44,7 @@ export function ApiKeyManager({ currentApiKey, onSave }: ApiKeyManagerProps) {
   return (
     <Dialog.Root>
       <Dialog.Trigger>
-        <IconButton variant="ghost" aria-label="设置">
+        <IconButton variant="classic" aria-label="设置">
           <GearIcon />
         </IconButton>
       </Dialog.Trigger>
