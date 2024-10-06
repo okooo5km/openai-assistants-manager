@@ -286,7 +286,7 @@ export default function Home() {
             borderRadius: "12px",
           }}
         >
-          <Flex justify="between" align="center" mb="4">
+          <Flex justify="between" align="center" mb="4" wrap="wrap" gap="4">
             <Flex align="center" gap="3">
               <Image
                 src="/icon-512x512.svg"
