@@ -49,11 +49,31 @@ OpenAI Assistants Manager is a simple web application built with Next.js for man
    start http://localhost:3000
    ```
 
-## Deployment on Vercel
+## Deployment
+
+### Vercel Deployment
 
 This simple project can be easily deployed on Vercel with just a few clicks. Click the button below to deploy:
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fokooo5km%2Fopenai-assistants-manager)
+
+### Netlify Deployment
+
+You can also deploy this project on Netlify. Follow these steps:
+
+1. Fork this repository to your GitHub account.
+2. Log in to your Netlify account.
+3. Click on "New site from Git".
+4. Choose GitHub as your Git provider.
+5. Select the forked repository.
+6. In the "Build settings" section:
+   - Set the build command to: `npm run build`
+   - Set the publish directory to: `.next`
+7. Click on "Deploy site".
+
+Alternatively, you can click the button below for a quick deploy:
+
+[![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/okooo5km/openai-assistants-manager)
 
 ## Contributing
 

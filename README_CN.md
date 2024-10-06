@@ -49,11 +49,31 @@ OpenAI Assistants 管理器是一个基于 Next.js 开发的简单 Web 应用，
    start http://localhost:3000
    ```
 
-## Vercel 部署
+## 部署
+
+### Vercel 部署
 
 这个简单的项目可以通过几次点击轻松部署到 Vercel。点击下方按钮进行部署：
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fokooo5km%2Fopenai-assistants-manager)
+
+### Netlify 部署
+
+您也可以将此项目部署到 Netlify。按照以下步骤操作：
+
+1. 将此仓库 fork 到您的 GitHub 账户。
+2. 登录您的 Netlify 账户。
+3. 点击 "New site from Git"。
+4. 选择 GitHub 作为您的 Git 提供商。
+5. 选择您 fork 的仓库。
+6. 在 "Build settings" 部分：
+   - 设置构建命令为：`npm run build`
+   - 设置发布目录为：`.next`
+7. 点击 "Deploy site"。
+
+或者，您可以点击下方按钮快速部署：
+
+[![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/okooo5km/openai-assistants-manager)
 
 ## 贡献
 
