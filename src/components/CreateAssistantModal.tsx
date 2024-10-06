@@ -29,7 +29,7 @@ export function CreateAssistantModal({
 
   const handleCreate = () => {
     if (name.trim() === "") {
-      setError("Assistant 名称不能为空");
+      setError("Assistant name cannot be empty");
       return;
     }
     onCreate({
@@ -38,7 +38,7 @@ export function CreateAssistantModal({
       model,
     });
     onClose();
-    // 重置表单
+    // Reset form
     setName("");
     setInstructions("");
     setModel("gpt-3.5-turbo");
@@ -48,16 +48,16 @@ export function CreateAssistantModal({
   return (
     <Dialog.Root open={isOpen} onOpenChange={onClose}>
       <Dialog.Content style={{ maxWidth: "500px" }}>
-        <Dialog.Title>创建新 Assistant</Dialog.Title>
+        <Dialog.Title>Create New Assistant</Dialog.Title>
         <Flex direction="column" gap="3">
           <TextField.Root
             variant="classic"
-            placeholder="Assistant 名称"
+            placeholder="Assistant name"
             value={name}
             onChange={(e) => setName(e.target.value)}
           ></TextField.Root>
           <TextArea
-            placeholder="系统指令"
+            placeholder="System instructions"
             value={instructions}
             onChange={(e) => setInstructions(e.target.value)}
           />
@@ -75,11 +75,11 @@ export function CreateAssistantModal({
           <Flex justify="end" gap="3">
             <Dialog.Close>
               <Button variant="classic" color="gray">
-                取消
+                Cancel
               </Button>
             </Dialog.Close>
             <Button onClick={handleCreate} variant="classic">
-              创建
+              Create
             </Button>
           </Flex>
         </Flex>

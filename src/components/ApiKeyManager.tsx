@@ -44,14 +44,14 @@ export function ApiKeyManager({ currentApiKey, onSave }: ApiKeyManagerProps) {
   return (
     <Dialog.Root>
       <Dialog.Trigger>
-        <IconButton variant="classic" aria-label="设置">
+        <IconButton variant="classic" aria-label="Settings">
           <GearIcon />
         </IconButton>
       </Dialog.Trigger>
       <Dialog.Content style={{ maxWidth: "400px" }}>
         <Flex direction="column" gap="3">
-          <Dialog.Title>API Key 设置</Dialog.Title>
-          <Text size="2">当前 API Key:</Text>
+          <Dialog.Title>API Key Settings</Dialog.Title>
+          <Text size="2">Current API Key:</Text>
           <Flex>
             <TextField.Root
               variant="classic"
@@ -61,7 +61,7 @@ export function ApiKeyManager({ currentApiKey, onSave }: ApiKeyManagerProps) {
               onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                 setNewApiKey(e.target.value)
               }
-              placeholder="输入新的 API Key"
+              placeholder="Enter new API Key"
             >
               <TextField.Slot>
                 <IconButton
@@ -77,12 +77,12 @@ export function ApiKeyManager({ currentApiKey, onSave }: ApiKeyManagerProps) {
           <Flex justify="end" gap="2">
             <Dialog.Close>
               <Button variant="classic" color="gray">
-                取消
+                Cancel
               </Button>
             </Dialog.Close>
             <Dialog.Close>
               <Button variant="classic" onClick={handleSave}>
-                保存
+                Save
               </Button>
             </Dialog.Close>
           </Flex>

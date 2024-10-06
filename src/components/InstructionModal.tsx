@@ -33,7 +33,7 @@ export function InstructionModal({
   return (
     <Dialog.Root open={isOpen} onOpenChange={onClose}>
       <Dialog.Content style={{ maxWidth: "600px", width: "100%" }}>
-        <Dialog.Title>编辑系统指令</Dialog.Title>
+        <Dialog.Title>Edit System Instructions</Dialog.Title>
         <Flex direction="column" gap="2">
           <TextArea
             value={editedInstructions}
@@ -43,12 +43,12 @@ export function InstructionModal({
           <Flex justify="between">
             <Button variant="classic" onClick={handleCopy}>
               <CopyIcon />
-              {isCopied ? "已复制" : "复制"}
+              {isCopied ? "Copied" : "Copy"}
             </Button>
             <Flex gap="2">
               <Dialog.Close>
                 <Button variant="classic" color="gray">
-                  取消
+                  Cancel
                 </Button>
               </Dialog.Close>
               <Button
@@ -56,7 +56,7 @@ export function InstructionModal({
                 onClick={() => onSave(editedInstructions)}
                 disabled={!isChanged}
               >
-                保存
+                Save
               </Button>
             </Flex>
           </Flex>

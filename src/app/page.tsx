@@ -82,7 +82,7 @@ export default function Home() {
       setApiKey(newApiKey);
       fetchAssistants(newApiKey);
     } else {
-      setError("API Key 不能为空");
+      setError("API Key cannot be empty");
       setIsModalOpen(true);
     }
   };
@@ -90,7 +90,7 @@ export default function Home() {
   const fetchAssistants = async (key: string) => {
     setLoading(true);
     setIsProcessing(true);
-    setProcessingMessage("正在获取 Assistants 数据...");
+    setProcessingMessage("Fetching Assistants data...");
     setError(null);
     try {
       const openai = new OpenAI({ apiKey: key, dangerouslyAllowBrowser: true });
@@ -100,7 +100,7 @@ export default function Home() {
         setSelectedAssistantId(response.data[0].id);
       }
     } catch (err) {
-      setError("获取助手列表失败，请检查您的 API 密钥是否正确。");
+      setError("Failed to fetch assistants list. Please check if your API key is correct.");
       console.error("Error fetching assistants:", err);
     } finally {
       setLoading(false);
@@ -113,7 +113,7 @@ export default function Home() {
     if (!apiKey) return;
     setLoading(true);
     setIsProcessing(true);
-    setProcessingMessage(`正在更新 Assistant "${updatedAssistant.name}"...`);
+    setProcessingMessage(`Updating Assistant "${updatedAssistant.name}"...`);
     setError(null);
     try {
       const openai = new OpenAI({ apiKey, dangerouslyAllowBrowser: true });
@@ -146,7 +146,7 @@ export default function Home() {
         )
       );
     } catch (err) {
-      setError("更新助手失败，请稍后重试。");
+      setError("Failed to update assistant. Please try again later.");
       console.error("Error updating assistant:", err);
     } finally {
       setLoading(false);
@@ -192,7 +192,7 @@ export default function Home() {
     if (!apiKey) return;
     setLoading(true);
     setIsProcessing(true);
-    setProcessingMessage(`正在创建新的 Assistant "${newAssistant.name}"...`);
+    setProcessingMessage(`Creating new Assistant "${newAssistant.name}"...`);
     setError(null);
     try {
       const openai = new OpenAI({ apiKey, dangerouslyAllowBrowser: true });
@@ -204,7 +204,7 @@ export default function Home() {
       setAssistants([...assistants, response as unknown as Assistant]);
       setSelectedAssistantId(response.id);
     } catch (err) {
-      setError("创建新助手失败，请稍后重试。");
+      setError("Failed to create new assistant. Please try again later.");
       console.error("Error creating assistant:", err);
     } finally {
       setLoading(false);
@@ -217,7 +217,7 @@ export default function Home() {
     if (!apiKey) return;
     setLoading(true);
     setIsProcessing(true);
-    setProcessingMessage(`正在删除 Assistant...`);
+    setProcessingMessage(`Deleting Assistant...`);
     setError(null);
     try {
       const openai = new OpenAI({ apiKey, dangerouslyAllowBrowser: true });
@@ -227,7 +227,7 @@ export default function Home() {
         setSelectedAssistantId(assistants[0]?.id || null);
       }
     } catch (err) {
-      setError("删除助手失败，请稍后重试。");
+      setError("Failed to delete assistant. Please try again later.");
       console.error("Error deleting assistant:", err);
     } finally {
       setLoading(false);
@@ -286,18 +286,18 @@ export default function Home() {
                   boxShadow: "0 0 10px 0 rgba(0, 0, 0, 0.1)",
                 }}
               />
-              <Heading size="5">OpenAI Assistants 管理器</Heading>
+              <Heading size="5">OpenAI Assistants Manager</Heading>
             </Flex>
             <Flex align="center" gap="4">
               <Button
                 onClick={() => setIsCreateModalOpen(true)}
                 variant="classic"
               >
-                创建
+                Create
               </Button>
               <DropdownMenu.Root>
                 <DropdownMenu.Trigger>
-                  <IconButton variant="classic" aria-label="切换主题">
+                  <IconButton variant="classic" aria-label="Toggle theme">
                     {getThemeIcon()}
                   </IconButton>
                 </DropdownMenu.Trigger>
@@ -305,26 +305,26 @@ export default function Home() {
                   <DropdownMenu.Item onSelect={() => setTheme("light")}>
                     <Flex align="center" gap="2">
                       <SunIcon />
-                      浅色
+                      Light
                     </Flex>
                   </DropdownMenu.Item>
                   <DropdownMenu.Item onSelect={() => setTheme("dark")}>
                     <Flex align="center" gap="2">
                       <MoonIcon />
-                      深色
+                      Dark
                     </Flex>
                   </DropdownMenu.Item>
                   <DropdownMenu.Item onSelect={() => setTheme("system")}>
                     <Flex align="center" gap="2">
                       <DesktopIcon />
-                      系统
+                      System
                     </Flex>
                   </DropdownMenu.Item>
                 </DropdownMenu.Content>
               </DropdownMenu.Root>
               <IconButton
                 variant="classic"
-                aria-label="GitHub 仓库"
+                aria-label="GitHub Repository"
                 onClick={() =>
                   window.open(
                     "https://github.com/okooo5km/openai-assistants-manager",
@@ -376,7 +376,7 @@ export default function Home() {
                     <Flex direction="column" gap="4">
                       <Flex direction="column" gap="1">
                         <Text size="2" weight="bold">
-                          名称
+                          Name
                         </Text>
                         <TextField.Root
                           variant="classic"
@@ -387,13 +387,13 @@ export default function Home() {
                               name: e.target.value,
                             })
                           }
-                          placeholder="Assistant 名称"
+                          placeholder="Assistant name"
                         />
                       </Flex>
 
                       <Flex direction="column" gap="1">
                         <Text size="2" weight="bold">
-                          系统指令
+                          System Instructions
                         </Text>
                         <Box style={{ position: "relative" }}>
                           <TextArea
@@ -405,7 +405,7 @@ export default function Home() {
                                 instructions: e.target.value,
                               })
                             }
-                            placeholder="系统指令"
+                            placeholder="System instructions"
                           />
                           <IconButton
                             variant="ghost"
@@ -428,7 +428,7 @@ export default function Home() {
 
                       <Flex direction="column" gap="1">
                         <Text size="2" weight="bold">
-                          模型
+                          Model
                         </Text>
                         <Select.Root
                           value={assistant.model}
@@ -449,7 +449,7 @@ export default function Home() {
 
                       <Flex direction="column" gap="1">
                         <Text size="2" weight="bold">
-                          响应格式
+                          Response Format
                         </Text>
                         <Select.Root
                           value={assistant.response_format.type}
@@ -525,18 +525,18 @@ export default function Home() {
               style={{ minHeight: "200px" }}
             >
               <Text size="3" mb="4">
-                您还没有创建任何 Assistant
+                You haven't created any Assistants yet
               </Text>
               <Button
                 onClick={() => setIsCreateModalOpen(true)}
                 variant="classic"
               >
                 <PlusIcon />
-                创建新 Assistant
+                Create New Assistant
               </Button>
             </Flex>
           )}
-          {loading && <Text align="center">加载中...</Text>}
+          {loading && <Text align="center">Loading...</Text>}
           {error && (
             <Text color="red" align="center">
               {error}
@@ -569,7 +569,7 @@ export default function Home() {
             <Spinner />
             <AlertDialog.Title>{processingMessage}</AlertDialog.Title>
             <AlertDialog.Description>
-              请稍候，我们正在处理您的请求...
+              Please wait, we are processing your request...
             </AlertDialog.Description>
           </AlertFlex>
         </AlertDialog.Content>
@@ -584,14 +584,14 @@ export default function Home() {
         onOpenChange={() => setAssistantToDelete(null)}
       >
         <AlertDialog.Content>
-          <AlertDialog.Title>确认删除</AlertDialog.Title>
+          <AlertDialog.Title>Confirm Deletion</AlertDialog.Title>
           <AlertDialog.Description>
-            您确定要删除这个 Assistant 吗？此操作无法撤消。
+            Are you sure you want to delete this Assistant? This action cannot be undone.
           </AlertDialog.Description>
           <Flex justify="end" gap="3" mt="4">
             <AlertDialog.Cancel>
               <Button variant="classic" color="gray">
-                取消
+                Cancel
               </Button>
             </AlertDialog.Cancel>
             <AlertDialog.Action>
@@ -600,7 +600,7 @@ export default function Home() {
                 color="red"
                 onClick={handleDeleteConfirm}
               >
-                删除
+                Delete
               </Button>
             </AlertDialog.Action>
           </Flex>

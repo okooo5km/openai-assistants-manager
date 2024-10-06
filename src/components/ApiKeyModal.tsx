@@ -13,7 +13,7 @@ export function ApiKeyModal({ isOpen, onClose, onSave }: ApiKeyModalProps) {
 
   const handleSave = () => {
     if (apiKey.trim() === "") {
-      setError("API Key 不能为空");
+      setError("API Key cannot be empty");
       return;
     }
     onSave(apiKey);
@@ -23,23 +23,23 @@ export function ApiKeyModal({ isOpen, onClose, onSave }: ApiKeyModalProps) {
   return (
     <Dialog.Root open={isOpen} onOpenChange={onClose}>
       <Dialog.Content style={{ maxWidth: "400px" }}>
-        <Dialog.Title>设置 OpenAI API 密钥</Dialog.Title>
+        <Dialog.Title>Set OpenAI API Key</Dialog.Title>
         <Flex direction="column" gap="2">
           <TextField.Root
             type="password"
             value={apiKey}
             onChange={(e) => setApiKey(e.target.value)}
-            placeholder="输入您的 API 密钥"
+            placeholder="Enter your API key"
           ></TextField.Root>
           {error && <Text color="red">{error}</Text>}
           <Flex justify="end" gap="2">
             <Dialog.Close>
               <Button variant="classic" color="gray">
-                取消
+                Cancel
               </Button>
             </Dialog.Close>
             <Button onClick={handleSave} variant="classic">
-              保存
+              Save
             </Button>
           </Flex>
         </Flex>
